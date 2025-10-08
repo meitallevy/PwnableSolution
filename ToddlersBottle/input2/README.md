@@ -181,3 +181,49 @@ Just give me correct inputs then you will get the flag :)
 Stage 1 clear!
 Stage 2 clear!
 ```
+
+Stage 3 requires having an env variable set before run.
+
+```shell
+	// env
+	if(strcmp("\xca\xfe\xba\xbe", getenv("\xde\xad\xbe\xef"))) return 0;
+	printf("Stage 3 clear!\n");
+```
+so I've adjusted [run_input2.py](./runnables/run_input2.py)
+to use `os.execve` instead of `os.execv` which allows you to pass env vars
+
+
+```shell
+input2@ubuntu:~$ python3 /tmp/run_input2.py < /tmp/file_in 2< /tmp/file_err
+Total number of arguments being sent: 100
+[b'input2_adjusted', b'ph', b'ph', b'ph', b'ph', b'ph', b'ph', b'ph', b'ph', b'ph', b'ph', b'ph', b'ph', b'ph', b'ph', b'ph', b'ph', b'ph', b'ph', b'ph', b'ph', b'ph', b'ph', b'ph', b'ph', b'ph', b'ph', b'ph', b'ph', b'ph', b'ph', b'ph', b'ph', b'ph', b'ph', b'ph', b'ph', b'ph', b'ph', b'ph', b'ph', b'ph', b'ph', b'ph', b'ph', b'ph', b'ph', b'ph', b'ph', b'ph', b'ph', b'ph', b'ph', b'ph', b'ph', b'ph', b'ph', b'ph', b'ph', b'ph', b'ph', b'ph', b'ph', b'ph', b'ph', b'', b' \n\r', b'ph', b'ph', b'ph', b'ph', b'ph', b'ph', b'ph', b'ph', b'ph', b'ph', b'ph', b'ph', b'ph', b'ph', b'ph', b'ph', b'ph', b'ph', b'ph', b'ph', b'ph', b'ph', b'ph', b'ph', b'ph', b'ph', b'ph', b'ph', b'ph', b'ph', b'ph', b'ph', b'ph']
+Setting env var for stage 3
+Welcome to pwnable.kr
+Let's see if you know how to give input to program
+Just give me correct inputs then you will get the flag :)
+Stage 1 clear!
+Stage 2 clear!
+Stage 3 clear!
+```
+
+Stage 4 requires a file named \x0a to be in the same dir, containing `\x00\x00\x00\x00`.
+```shell
+	// file
+	FILE* fp = fopen("\x0a", "r");
+	if(!fp) return 0;
+	if( fread(buf, 4, 1, fp)!=1 ) return 0;
+	if( memcmp(buf, "\x00\x00\x00\x00", 4) ) return 0;
+	fclose(fp);
+	printf("Stage 4 clear!\n");	
+```
+
+If the file does not exist, or its content doesn't match we lose.
+So creating this file inside our python script solves this:
+```python
+print(f"Creating file for stage 4")
+file = open("\x0a", "w+")
+file.write("\x00\x00\x00\x00")
+file.close()
+```
+But, that only works on my computer,
+I can't open this file on the machine :(

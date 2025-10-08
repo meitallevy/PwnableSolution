@@ -20,12 +20,19 @@ arguments = (
 print(f"Total number of arguments being sent: {len(arguments)}")
 print(arguments)
 
-# The os.execv call replaces the current process with the target binary,
+print(f"Setting env var for stage 3")
+env = {b"\xde\xad\xbe\xef": b"\xca\xfe\xba\xbe"}
+
+print(f"Creating file for stage 4")
+fd = os.open("\x0a", flags=os.O_RDWR)
+os.write(fd,b"\x00\x00\x00\x00")
+os.close(fd)
+# The os.execve call replaces the current process with the target binary,
 # so code after this will not run.
 # All arguments must be byte strings.
 try:
-    os.execv(binary_path, arguments)
+    os.execve(binary_path, arguments, env)
 except Exception as e:
-    print(f"An error occurred during os.execv: {e}")
+    print(f"An error occurred during os.execve: {e}")
 
 
